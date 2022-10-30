@@ -1,5 +1,4 @@
---Note, uses the stormworks lua API
-version = '0.10.1A'
+version = '0.10.1A' --Note, uses the stormworks lua API
 score = 0
 etimer = 0
 timet = 0
@@ -500,12 +499,12 @@ function onDraw()
 		screen.setColor(0, fireg, firer)
 			screen.drawCircleF(130, 48, 20)
 		screen.setColor(255, 255, 255)
-		if click and clickx > 10 and clickx < 59 and clicky > 70 and clicky < 77 and repairst == false then
+		if click and clickx > 10 and clickx < 59 and clicky > 68 and clicky < 77 and repairst == false then
 			screen.drawRectF(10, 70, 49, 7)
 				screen.drawText(11, 71, 'Scan: '.. scanning)
 			scanning = scanning - 1
 			repairst = true
-		elseif click and clickx > 10 and clickx < 59 and clicky > 70 and clicky < 77 and repairst == true then
+		elseif click and clickx > 10 and clickx < 59 and clicky > 68 and clicky < 77 and repairst == true then
 			screen.drawRectF(10, 70, 49, 7)
 				screen.drawText(11, 71, 'Scan: '.. scanning)
 		else
