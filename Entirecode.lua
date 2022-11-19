@@ -1,4 +1,4 @@
-version = '0.25.8A' --Note, uses the stormworks lua API
+version = '0.29.1A' --note: uses stormworks API
 score = 0
 etimer = 0
 timet = 0
@@ -12,7 +12,7 @@ reactorlv = 1 --max 5
 reactorpoints = 1 --max 1k
 fame = 1 --max 1000
 size = 1 --max 3
-research = 0 --max 1000
+research = 1 --max 1000
 firex = 0
 firey = 0
 firer = 0
@@ -50,6 +50,20 @@ red2 = .5
 green2 = .5
 blue2 = .5
 settings = false
+randomstation = 0
+eventbutton1 = false
+accident = 0
+tutorial = false
+tutorialstep = 1
+tutorialbutton = false
+readtimer = 0
+tutorialbutton2 = 20
+buttontoggle = false
+npchealth = 100
+npcdead = false
+npcship = 100
+npcbutton = false
+showertable = {}
 function onTick()
 	if animation then
 		animationstep = animationstep + 1
@@ -68,6 +82,7 @@ function onTick()
 		research = 0
 	end
 	reactorpoints = math.floor(reactorpoints)
+	hp = math.floor(hp)
 	timer500t = timer500t + 1
 	if timer500t > 500 then
 		timer500t = 0
@@ -99,12 +114,91 @@ function onTick()
 		event = event
 	end
 	if event and event2 == 0 then
-		event2 = math.random(1, 3)
+		event2 = math.random(1, 5)
+		if event2 == 4 then
+			randomstation = math.random(1, 3)
+			if randomstation == 1 then
+				salvage = 10
+			elseif randomstation == 2 then
+				salvage = 20
+			elseif randomstation == 3 then
+				salvage = 30
+			end
+		end
 	else
 		event2 = event2
 	end
 	if event == false then
 		event2 = 0
+	end
+--event 5
+	if event and event2 == 5.1 and accepted == false then
+		if click and event2 == 5.1 then
+			accepted = false
+			event = false
+			event2 = 0
+			fame = fame + 5
+			research = research + 200
+			eventpopup = false
+			hp = math.floor(hp/5+0.5)*5
+			meteorShower(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, false)
+		end
+	end
+	if event and event2 == 5 and accepted == false then
+		if click and event2 == 5 then
+			accepted = true
+		else
+			accepted = accepted
+		end
+		eventpopup = true
+	elseif event and event2 == 5 and accepted == true then
+		eventpopup = false
+	end
+--event 4
+	if event and event2 == 4 and accepted == false then
+		if click and event2 == 4 then
+			accepted = true
+		else
+			accepted = accepted
+		end
+		eventpopup = true
+	elseif event and event2 == 4 and accepted == true then
+		eventpopup = false
+	end
+	if event and event2 == 4.1 and eventpopup then
+		if click and event2 == 4.1 then
+			eventpopup = false
+			event = false
+			event2 = 0
+			accepted = false
+			hp = hp - 20
+			accident = 0
+			fame = fame - 1
+		end
+	end
+	if event and event2 == 4.2 and eventpopup then
+		if click and event2 == 4.2 then
+			accident = 0
+			eventpopup = false
+			event = false
+			event2 = 0
+			accepted = false
+			if size == 1 and hp < 80 then
+				hp = hp + 20
+				research = research + 20
+				fame = fame + 5
+			elseif size == 2 and hp < 280 then
+				hp = hp + 20
+				research = research + 20
+				fame = fame + 10
+			elseif size == 3 and hp < 480 then
+				hp = hp + 20
+				research = research + 20
+				fame = fame + 10
+			else
+				research = research + 40
+			end
+		end
 	end
 --event 3
 	if event and event2 == 3 and accepted == false then
@@ -184,6 +278,7 @@ function onTick()
 			repairaccident = 0
 			scanning = 25
 			perevent = false
+			fame = fame - 1
 		end
 	end
 	if event and event2 == 2.2 then
@@ -249,9 +344,79 @@ function onTick()
 	end
 end
 function onDraw()
+	--tutorial
+		screen.setColor(red*255, green*255, blue*255)
+		if tutorial == false and titlescreen and settings == false and tutorialbutton == false and click == false then
+			screen.drawRect(54, 85, 41, 7)
+			screen.drawText(55, 86, 'tutorial')
+		elseif tutorial == false and titlescreen and settings == false and tutorialbutton == false and click and clickx > 54 and clickx < 95 and clicky > 85 and clicky < 93 then
+			screen.drawRectF(54, 85, 41, 7)
+			screen.drawText(55, 86, 'tutorail')
+			tutorialbutton = true
+			tutorial = true
+		elseif tutorial == false and titlescreen and settings == false and tutorialbutton and click and clickx > 54 and clickx < 95 and clicky > 85 and clicky < 93 then
+			screen.drawRectF(54, 85, 41, 7)
+			screen.drawText(55, 86, 'tutorial')
+		elseif click == false and tutorialbutton == true then 
+			tutorialbutton = false
+		elseif settings == false and titlescreen and tutorial == false then
+			screen.drawRect(54, 85, 41, 7)
+			screen.drawText(55, 86, 'tutorial')
+		end
+		if tutorial then
+			screen.setColor(red*255, green*255, blue*255)
+				if tutorialstep == 1 then
+					readtimer = readtimer + 1
+					screen.drawText(1, 20, 'welcome to the tutorial.\nyou can find very useful\ninformation here on how to\nplay the game. even lore!\n(click to contuine)\n(you will click a lot)\n(ps, i had to get a new mouse\nafter a testing session)')
+					if click and readtimer > 30 then
+						tutorialstep = tutorialstep + 1
+						readtimer = 0
+					end
+				end
+				if tutorialstep == 2 then
+					screen.drawText(1, 20, 'you will now learn how\nto interact with different\nthings in the game')
+					readtimer = readtimer + 1
+					if click and readtimer > 30 then
+						tutorialstep = tutorialstep + 1
+						readtimer = 0
+					end
+				end
+				if tutorialstep == 3 then
+					screen.drawText(1, 20, 'when you have a button\nsaying scan, or target,\nor repair (etc...)\nand it ends with a number,\nyou need to click on it')
+					if click and clickx > 30 and clickx < 76 and clicky > 60 and clicky < 68 and buttontoggle == false then
+						screen.drawRectF(30, 60, 46, 8)
+						screen.drawText(31, 61, 'press!'..tutorialbutton2)
+						buttontoggle = true
+						tutorialbutton2 = tutorialbutton2 - 1
+					elseif click and clickx > 30 and clickx < 76 and clicky > 60 and clicky < 68 and buttontoggle then
+						screen.drawRectF(30, 60, 46, 8)
+						screen.drawText(31, 61, 'press!'..tutorialbutton2)
+					elseif click == false and buttontoggle then
+						screen.drawRect(30, 60, 46, 8)
+						screen.drawText(31, 61, 'press!'..tutorialbutton2)
+						buttontoggle = false
+					else
+						screen.drawRect(30, 60, 46, 8)
+						screen.drawText(31, 61, 'press!'..tutorialbutton2)
+					end
+					if tutorialbutton2 == 0 then
+						tutorialbutton2 = 20
+						tutorialstep = tutorialstep + 1
+					end
+				end
+				if tutorialstep == 4 then
+					readtimer = readtimer + 1
+					screen.drawText(1, 5, 'great job! the final part is\nthe lore. currently the lore is\nthat the space station\nis designed by some old\nscientist who\'s ideas were\nrejected in the past\nbut when he brought up a new\nidea to the receptionist who\nrejected his idea,\nhe asked to speak\nto the director of the\nspace agency, who allowed\nhis project.\n(click to return to titlescreen')
+					if click and readtimer > 120 then
+						tutorial = false
+						tutorialstep = 1
+						readtimer = 0
+					end
+				end
+		end
 	screen.setColor(red*255, green*255, blue*255)
 	if animation == false then
-		screen.drawText(116, 91, 'v.'..version)
+		screen.drawText(116, 91, 'v'..version)
 	end
 	if animation then
 		screen.drawRect(140, 0, 20, 7)
@@ -269,10 +434,10 @@ function onDraw()
 			titlescreen = true
 		end
 	end
-	if titlescreen then
+	if titlescreen and tutorial == false then
 		if settings == false then
 			screen.setColor(red*129, green*48, blue*255)
-				screen.drawText(1, 1, '  Core Labs and the Chosmotic\n         plane presents!\n\n       Home Away From Home')
+				screen.drawText(1, 1, '  Core Labs and the Chaosmic\n         plane presents!\n\n       Home Away From Home')
 			screen.setColor(red*255, green*255, blue*255)
 				screen.drawRect(70, 50, 25, 7)
 				screen.drawText(71, 51, 'Start')
@@ -338,9 +503,9 @@ function onDraw()
 			screen.setColor(red*0, green*255, blue*0)
 				screen.drawRectF(106, 29, 32, 5)
 			screen.setColor(red*0, green*0, blue*255)
-				screen.drawRectF(106, 34, 32, 5)
+				screen.drawRectF(106, 35, 32, 5)
 			screen.setColor(red*150, green*150, blue*50)
-				screen.drawRectF(106, 40, 32, 5)
+				screen.drawRectF(106, 41, 32, 5)
 			screen.setColor(255, 0, 0)
 				screen.drawRect(5, 5, 100, 10)
 			screen.setColor(0, 255, 0)
@@ -652,21 +817,21 @@ function onDraw()
 			screen.setColor(red*255, green*255, blue*255)
 				screen.drawRectF(5, 80, 41, 8)
 			screen.setColor(red*0, green*0, 0)
-				screen.drawText(6, 81, 'Upgrades')
+				screen.drawText(6, 81, 'upgrades')
 			screen.setColor(red*255, green*255, blue*255)
 			menutoggle = true
 		elseif click and clickx > 5 and clickx < 46 and clicky > 80 and clicky < 88 and menutoggle and event == false then
 		else
 			screen.setColor(red*255, green*255, blue*255)
 			screen.drawRect(5, 80, 41, 8)
-			screen.drawText(6, 81, 'Upgrades')
+			screen.drawText(6, 81, 'upgrades')
 			menutoggle = false
 		end
 		if click and clickx > 5 and clickx < 46 and clicky > 80 and clicky < 88 and menutoggle and event == false or menu then
 			screen.setColor(red*255, green*255, blue*255)
 				screen.drawRectF(5, 80, 41, 8)
 			screen.setColor(red*0, green*0,blue* 0)
-				screen.drawText(6, 81, 'Upgrades')
+				screen.drawText(6, 81, 'upgrades')
 			screen.setColor(red*255, green*255, blue*255)
 		end
 	end
@@ -709,13 +874,13 @@ function onDraw()
 						reactorpoints = reactorpoints - 1
 						hp = hp + 5
 					end
-					if size == 2 and hp == 295 then
+					if size == 2 and hp == 95 or hp == 295 then
 						reactorpoints = reactorpoints - 1
 						hp = hp + 5
 					end
-					if size == 3 and hp == 495 then
+					if size == 3 and hp == 95 or hp == 295 or hp == 495 then
 						reactorpoints = reactorpoints - 2
-						hp = hp + 10
+						hp = hp + 5
 					end
 					menutoggle2 = true
 				end
@@ -724,11 +889,11 @@ function onDraw()
 				screen.drawText(6, 6, 'repair\n-1 pr\n+5 hp')
 			elseif click and clickx > 5 and clickx < 40 and clicky > 5 and clicky < 25 and menutoggle2 then
 				screen.drawRectF(5, 5, 35, 20)
-				screen.drawText(6, 6, 'repair\n-1 pr \n+10 hp')
+				screen.drawText(6, 6, 'repair\n-1 pr\n+10 hp')
 			else
 				menutoggle2 = false
 				screen.drawRect(5, 5, 35, 20)
-				screen.drawText(6, 6, 'repair\n-1 pr \n+5 hp')
+				screen.drawText(6, 6, 'repair\n-1 pr\n+5 hp')
 			end
 		end
 		--reactor
@@ -775,6 +940,108 @@ function onDraw()
 		screen.drawText(1, 70, 'hp '..hp)
 		screen.drawText(40, 70, 'pr '..pr2)
 		screen.drawText(80, 70, 'fame '..fame)
+	end
+	--event 5
+	if eventpopup and event2 == 5.1 then
+		screen.setColor(red*255, green*0, blue*0)
+			screen.drawText(1, 20, 'after a display\nof bad luck, the station\nhas suffered heavy\ncasualties and\nthe bad luck has\nbeen stuied and now is\nwell known\nfame + 5, research + 200')
+	end
+	if eventpopup and event2 == 5 then
+		screen.setColor(red*255, green*0, blue*0)
+			screen.drawText(1, 10, 'a person who had\ntheir ship attacked and\nhas very bad luck\nis asking for refuge\n(click to contuine)')
+			npcSprite(50, 60, red, green, blue)
+	end
+	if event2 == 5 and accepted and eventpopup == false then
+		if size == 1 then
+			hp, meteorshower2 = meteorShower(20, 500, 100, 150, 10, 20, 65, 55, hp, 1, 2, red, green, blue, true)-- meteors, time, spreadxmin, spreadxmax, spreadymin, spreadymax, despawnx, despawny, hp_on_hit, damage_multiplier, size, r, g, b, is_active
+		end
+		if size == 2 then
+			hp, meteorshower2 = meteorShower(20, 500, 100, 150, 10, 20, 65, 70, hp, 1.7, 3, red, green, blue, true)
+		end
+		if size == 3 then
+			hp, meteorshower2 = meteorShower(20, 500, 100, 150, 10, 20, 65, 70, hp, .8, 8, red, green, blue, true)
+		end
+		if meteorshower2 > 500 then
+			event2 = 5.1
+			accepted = false
+			eventpopup = true
+			meteorshower2 = 0
+		end
+	end
+	--event 4
+	if eventpopup and event2 == 4 then
+		screen.setColor(red*255, green*0, blue*0)
+			screen.drawText(1, 20, 'an abandoned space station\nis drifting into your space.\ntry to salvage it.\n(click to contuine)')
+	end
+	if eventpopup and event2 == 4.1 then
+		screen.setColor(red*255, green*0, blue*0)
+			screen.drawText(1, 20, 'the abandoned space station\nexploded during repairs\ndue to it being caught\nin a supernova when\nthe station was abandoned\nhp - 20, fame - 1\n(click to contuine)')
+	end
+	if eventpopup and event2 == 4.2 then
+		screen.setColor(red*255, green*0, blue*0)
+			if size == 1 and hp < 80 then
+				screen.drawText(1, 20, 'the abandoned space station\nhad some materials\nto use for repairs.\nhp + 20, research + 20\nfame + 5\n(click to contuine)')
+			elseif size == 2 and hp < 280 then
+				screen.drawText(1, 20, 'the abandoned space station\nhad some materials\nto use for repairs.\nhp + 20, research + 20\nfame + 10\n(click to contuine)')
+			elseif size == 3 and hp < 480 then
+				screen.drawText(1, 20, 'the abandoned space station\nhad some materials\nto use for repairs.\nhp + 20, research + 40\n(click to contuine)')
+			else
+				screen.drawText(1, 20, 'the abandoned space station\nhad some new tech\nthat has not been seen before\nresearch + 40\n(click to contune)')
+			end
+	end
+	if event2 == 4 and accepted and eventpopup == false then
+		if randomstation == 1 then
+			screen.setColor(red*255, green*255, blue*255)
+				screen.drawRectF(120, 20, 10, 5)
+			screen.setColor(red*0, green*0, blue*255)
+				screen.drawRectF(130, 20, 10, 2)
+		end
+		if randomstation == 2 then
+			screen.setColor(red*255, green*255, blue*255)
+				screen.drawRectF(120, 20, 20, 5)
+				screen.drawRectF(135, 25, 10, 5)
+			screen.setColor(red*0, green*0, blue*255)
+				screen.drawRectF(140, 30, 2, 15)
+		end
+		if randomstation == 3 then
+			screen.setColor(red*255, green*255, blue*255)
+				screen.drawRectF(130, 25, 20, 5)
+				screen.drawRectF(125, 30, 10, 5)
+				screen.drawRectF(130, 35, 5, 10)
+			screen.setColor(red*0, green*0, blue*255)
+				screen.drawRectF(135, 40, 10, 5)
+		end
+		screen.setColor(red*255, green*255, blue*255)
+			if click and clickx > 120 and clickx < 156 and clicky > 50 and clicky < 64 and eventbutton1 == false then
+				eventbutton1 = true
+				salvage = salvage - 1
+				screen.drawRectF(120, 50, 36, 14)
+					screen.drawText(121, 51, 'salvage\n'..salvage)
+			elseif click and clickx > 120 and clickx < 156 and clicky > 50 and clicky < 64 and eventbutton1 then
+				screen.drawRectF(120, 50, 36, 14)
+					screen.drawText(121, 51, 'salvage\n'..salvage)
+			elseif click == false and eventbutton1 then
+				eventbutton1 = false
+				screen.drawRect(120, 50, 36, 14)
+					screen.drawText(121, 51, 'salvage\n'..salvage)
+			else
+				screen.drawRect(120, 50, 36, 14)
+					screen.drawText(121, 51, 'salvage\n'..salvage)
+			end
+			if salvage < 1 and click == false then
+				accident = math.random(1, 4)
+			end
+			if accident == 1 and click == false then
+				eventpopup = true
+				event2 = 4.1
+				accepted = false
+			end
+			if accident > 1 and click == false then
+				eventpopup = true
+				event2 = 4.2
+				accepted = false
+			end
+		
 	end
 	--event 3
 	if eventpopup and event2 == 3.1 then
@@ -899,15 +1166,15 @@ function onDraw()
 	--event 2
 	if eventpopup and event2 == 2 then
 		screen.setColor(red*255, green*0, blue*0)
-			screen.drawText(1, 20, 'a nearby star is about to \nsupernova. you are told to \ninvestigate the explosion \n(click to contuine)')
+			screen.drawText(1, 20, 'a nearby star is about to\nsupernova. you are told to\ninvestigate the explosion\n(click to contuine)')
 	end
 	if eventpopup and event2 == 2.1 then
 		screen.setColor(red*255, green*0, blue*0)
-			screen.drawText(1, 20, 'the star has exploded \nthe station barley made it out \nalive. the data was destroyed \nin the process. \nfame -1, hp -60 \n(click to contuine)')
+			screen.drawText(1, 20, 'the star has exploded\nthe station barley made it out\nalive. the data was destroyed\nin the process.\nfame -1, hp -60\n(click to contuine)')
 	end
 	if eventpopup and event2 == 2.2 then
 		screen.setColor(red*255, green*0, blue*0)
-			screen.drawText(1, 20, 'you have finshed scanning \n ahead of time. the star \nexploded before it was \npredicted to. luckily \nthe station was able to get \nout of its range in time \nfame + 10, research + 90 \n(click to contuine)')
+			screen.drawText(1, 20, 'you have finshed scanning\nahead of time. the star\nexploded before it was\npredicted to. luckily\nthe station was able to get\nout of its range in time\nfame + 10, research + 90\n(click to contuine)')
 	end
 	if event2 == 2 and accepted then
 		if scanning < 0 then
@@ -929,8 +1196,8 @@ function onDraw()
 			screen.drawRect(10, 70, 49, 7)
 				screen.drawText(11, 71, 'Scan: '.. scanning)
 		end
-		if repairst == 10 and click == false and perevent == false then
-			repairaccident = math.random(1, 8)
+		if repairst == false and click == false and perevent == false and scanning == 10 then
+			repairaccident = math.random(1, 5)
 			perevent = true
 		end
 		if repairaccident == 1 and click == false then
@@ -951,15 +1218,15 @@ function onDraw()
 	--event 1
 	if eventpopup and event2 == 1 then
 		screen.setColor(red*255, green*0, blue*0)
-			screen.drawText(1, 20, 'a ship needing repairs is \napproaching to dock now! \n(click to contuine)')
+			screen.drawText(1, 20, 'a ship needing repairs is\napproaching to dock now!\n(click to contuine)')
 	end
 	if eventpopup and event2 == 1.1 then
 		screen.setColor(red*255, green*0, blue*0)
-			screen.drawText(1, 20,  'an accident caused the \nship to explode. hp - 30 \n(click to contuine)')
+			screen.drawText(1, 20,  'an accident caused the\nship to explode. hp - 30\n(click to contuine)')
 	end
 	if eventpopup and event2 == 1.2 then
 		screen.setColor(red*255, green*0, blue*0)
-			screen.drawText(1, 20, 'the crew are thankful for \nthe repairs. fame + 5 \n(click to contuine)')
+			screen.drawText(1, 20, 'the crew are thankful for\nthe repairs. fame + 5\n(click to contuine)')
 	end
 	if event and event2 == 1 and eventpopup == false then
 		if repairs == 3 and perevent == false and click == false then
@@ -1040,4 +1307,68 @@ function onDraw()
 		end
 	end
 	end
+end
+--As of v0.28.2A I will now be making custom sprites and functions to speed up the coding process faster
+--event5 sprites/code
+	function npcSprite(x, y, r, g, b) return
+		screen.setColor(100*r, 100*g, 0*b),
+		screen.drawCircleF(x+5, y+5, 15),
+		screen.setColor(200*r, 200*g, 200*b),
+		screen.drawLine(x-8, y+1, x+18, y+1),
+		screen.drawCircleF(x-2, y+1, 3),
+		screen.drawCircleF(x+12, y+1, 3),
+		screen.setColor(150*r, 5*g, 5*b),
+		screen.drawRectF(x-8, y-10, 26, 5),
+		screen.drawRectF(x-4, y-12, 18, 5)
+	end
+function meteorShower(meteors, time, spreadxmin, spreadxmax, spreadymin, spreadymax, despawnx, despawny, hp_on_hit, damage_multiplier, size, r, g, b, is_active)
+	if is_active == false then
+		x = 0
+		x2 = 0
+	end
+	if declareonce == nil then
+		meteors2 = meteors
+		declareonce = false
+		x = 0
+		x2 = 0
+	end
+	x = x + 1
+	x2 = 0
+	if x < time then
+		for i = 2, (meteors2*2)+2, 2 do
+			x2 = x2 + 2
+			if showertable[i-1] == nil then
+				showertable[i-1] = math.random(spreadxmin, spreadxmax)
+			end
+			if showertable[i] == nil then
+				showertable[i] = math.random(spreadymin, spreadymax)
+			end
+			if showertable[i-1] < despawnx or showertable[i] < 0 then
+				if is_active then
+					screen.setColor(0*r, 255*g, 255*b)
+						screen.drawRectF(showertable[i-1]-size, showertable[i]-size, 2, size*2)
+				end
+				showertable[i-1] = math.random(spreadxmin, spreadxmax)
+				hp_on_hit = hp_on_hit - (size*damage_multiplier)/20
+			end
+			if showertable[i] > 96 or showertable[i-1] < despawny then
+				if is_active then
+					screen.setColor(0*r, 255*g, 255*b)
+						screen.drawRectF(showertable[i-1]-size, showertable[i]-size, 2, size*2)
+				end
+				showertable[i] = math.random(spreadymin, spreadymax)
+				hp_on_hit = hp_on_hit - (size*damage_multiplier)/20
+			end
+				x2 = 0
+				showertable[i-1] = showertable[i-1] - .5
+				showertable[i] = showertable[i] + .5
+				if is_active then
+					screen.setColor(255*r, 255*g, 255*b)
+						screen.drawCircleF(showertable[i-1], showertable[i], size)
+				end
+		end
+	end
+	return
+	hp_on_hit,
+	x
 end
