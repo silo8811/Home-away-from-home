@@ -10,3 +10,12 @@ Works best in pony IDE.
 https://lua.flaffipony.rocks
 
 Another note. Requires a "5x3" monitor size, and "touchscreen" to be enabled
+
+
+Update:
+
+MAJOR UPDATE COMING SOON!
+
+Date: Sometime next month
+
+Features: Save system, new missions, better station hit-detection for missions.
