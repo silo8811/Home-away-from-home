@@ -19,3 +19,5 @@ MAJOR UPDATE COMING SOON!
 Date: Sometime next month
 
 Features: Save system, new missions, better station hit-detection for missions.
+
+Update to this. Postponed until further notice as I am working but pretty busy!
